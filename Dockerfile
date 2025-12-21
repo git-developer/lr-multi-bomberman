@@ -12,6 +12,7 @@ RUN <<EOF
   esac
   make clean -f Makefile.libretro
   make -f Makefile.libretro
+  chmod +x *.so
 EOF
 
 FROM scratch
