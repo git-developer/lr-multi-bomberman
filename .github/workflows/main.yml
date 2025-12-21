@@ -57,6 +57,7 @@ jobs:
             BASE_IMAGE=${{ matrix.base-image }}
             TARGET_PLATFORM=${{ matrix.platform }}
             TARGET_SUBVARIANT=${{ matrix.subvariant }}
+            TARGET_ID=${{ matrix.classifier }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -86,7 +87,7 @@ jobs:
         run: |
           cd assets
           find . -maxdepth 1 -type f | while IFS=/ read dir file; do
-            mv "${file}" "${GITHUB_REPOSITORY_NAME_PART_SLUG}-${GITHUB_REF_NAME_SLUG}-${file}"
+            mv -v "${file}" "${GITHUB_REPOSITORY_NAME_PART_SLUG}-${GITHUB_REF_NAME_SLUG}-${file}"
           done
 
       - name: Create checksum for release assets
