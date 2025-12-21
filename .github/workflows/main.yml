@@ -10,26 +10,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       matrix:
-        target:
+        include:
           - platform: linux/amd64
             arch: x86_64
             base: "ubuntu:jammy"
-#          - platform: linux/arm64
-#            arch: arm64
-#            base: "ubuntu:jammy"
-          - platform: linux/arm/v7
-            arch: rpi3
-            base: "debian:bullseye-slim"
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            arch: arm64
+            base: "ubuntu:jammy"
+            runner: ubuntu-24.04-arm
 #          - platform: linux/arm/v7
 #            arch: rpi3
+#            base: "debian:bullseye-slim"
+#            runner: ubuntu-latest
 #          - platform: linux/arm/v7
 #            arch: rpi2
-#        base:
-#          - os: ubuntu
-#            codename: jammy
+#            base: "debian:bullseye-slim"
+#            runner: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -39,7 +40,7 @@ jobs:
 
       - name: Setup qemu for docker
         uses: docker/setup-qemu-action@v3
-        if: matrix.target.platform != 'linux/amd64'
+        if: matrix.platform != 'linux/amd64'
 
       - name: Setup buildx for docker
         uses: docker/setup-buildx-action@v3
@@ -48,17 +49,17 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: ${{ matrix.target.platform }}
+          platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
-            BASE_IMAGE=${{ matrix.target.base }}
-            TARGET_PLATFORM=${{ matrix.target.platform }}
-            LR_PLATFORM=${{ matrix.target.arch }}
+            BASE_IMAGE=${{ matrix.base }}
+            TARGET_PLATFORM=${{ matrix.platform }}
+            LR_PLATFORM=${{ matrix.arch }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.target.arch }}
+          name: ${{ matrix.arch }}
           path: |
             build/lr_multi_bomberman_libretro.so
           if-no-files-found: error
@@ -77,14 +78,15 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           path: assets
+      - uses: rlespinasse/github-slug-action@v5
       - name: Package artifacts
         shell: bash
         run: |
-          find assets -mindepth 1 -maxdepth 1 -type d | while read arch; do
-            (pushd "${arch}"; tar c --remove-files -zvf "../../lr-multi-bomberman-${arch}.tar.gz" *; popd)
+          find assets -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read arch; do
+            (pushd "assets/${arch}"; tar c --remove-files -zvf "../lr-multi-bomberman-${GITHUB_REF_NAME_SLUG}-${arch}.tar.gz" *; popd)
           done
       - name: Create checksum for release assets
-        shell: bash
+          shell: bash
         run: |
           algo="${SHA_ALGORITHM:-256}"
           find assets -type f | while read -r asset; do
