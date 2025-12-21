@@ -14,22 +14,26 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: linux/amd64
+          -
+            platform: linux/amd64
             arch: x86_64
-            base: "ubuntu:jammy"
+            base-image: ubuntu:jammy
             runner: ubuntu-latest
-          - platform: linux/arm64
+          -
+            platform: linux/arm64
             arch: arm64
-            base: "ubuntu:jammy"
+            base-image: ubuntu:jammy
             runner: ubuntu-24.04-arm
-          - platform: linux/arm/v7
+          -
+            platform: linux/arm/v7
             arch: rpi3
-            base: "debian:bullseye-slim"
-            runner: ubuntu-latest
-          - platform: linux/arm/v7
+            base-image: debian:bullseye-slim
+            runner: ubuntu-24.04-arm
+          -
+            platform: linux/arm/v7
             arch: rpi2
-            base: "debian:bullseye-slim"
-            runner: ubuntu-latest
+            base-image: debian:bullseye-slim
+            runner: ubuntu-24.04-arm
 
     steps:
       - uses: actions/checkout@v5
@@ -39,7 +43,7 @@ jobs:
 
       - name: Setup qemu for docker
         uses: docker/setup-qemu-action@v3
-        if: matrix.platform != 'linux/amd64'
+        if: matrix.platform != 'linux/amd64' && matrix.platform != 'linux/arm64'
 
       - name: Setup buildx for docker
         uses: docker/setup-buildx-action@v3
@@ -51,7 +55,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
-            BASE_IMAGE=${{ matrix.base }}
+            BASE_IMAGE=${{ matrix.base-image }}
             TARGET_PLATFORM=${{ matrix.platform }}
             LR_PLATFORM=${{ matrix.arch }}
 
