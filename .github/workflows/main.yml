@@ -12,22 +12,22 @@ jobs:
       matrix:
         include:
           - platform: linux/amd64
-            arch: x86_64
+            build-platform: x86_64
             base-image: ubuntu:jammy
             runner: ubuntu-latest
 
           - platform: linux/arm64
-            arch: arm64
+            build-platform: arm64
             base-image: ubuntu:jammy
             runner: ubuntu-24.04-arm
 
           - platform: linux/arm/v7
-            arch: rpi3
+            build-platform: rpi3
             base-image: debian:bullseye-slim
             runner: ubuntu-24.04-arm
 
           - platform: linux/arm/v7
-            arch: rpi2
+            build-platform: rpi2
             base-image: debian:bullseye-slim
             runner: ubuntu-24.04-arm
 
@@ -54,14 +54,14 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ matrix.base-image }}
             TARGET_PLATFORM=${{ matrix.platform }}
-            LR_PLATFORM=${{ matrix.arch }}
+            BUILD_PLATFORM=${{ matrix.build-platform }}
+            VERSION=${{ env.GITHUB_REF_NAME_SLUG }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.arch }}
-          path: |
-            build/lr_multi_bomberman_libretro.so
+          name: ${{ matrix.build-platform }}
+          path: build/*
           if-no-files-found: error
 
   release:
@@ -81,8 +81,9 @@ jobs:
       - name: Package artifacts
         shell: bash
         run: |
-          find assets -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read arch; do
-            (pushd "assets/${arch}"; tar c --remove-files -zvf "../lr-multi-bomberman-${GITHUB_REF_NAME_SLUG}-${arch}.tar.gz" *; popd)
+          cd assets
+          find . -maxdepth 1 -type f | while IFS=/ read dir file; do
+            mv "${file}" "${GITHUB_REPOSITORY_NAME_PART_SLUG}-${GITHUB_REF_NAME_SLUG}-${file}"
           done
 
       - name: Create checksum for release assets
