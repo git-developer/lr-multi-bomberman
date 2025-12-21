@@ -47,7 +47,7 @@ jobs:
             BASE_OS=${{ matrix.base.os }}
             BASE_CODENAME=${{ matrix.base.codename }}
             TARGET_PLATFORM=${{ matrix.target.platform }}
-            TARGET_ARCH=${{ matrix.target.arch }}
+            LR_PLATFORM=${{ matrix.target.arch }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
