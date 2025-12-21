@@ -86,7 +86,7 @@ jobs:
             (pushd "assets/${arch}"; tar c --remove-files -zvf "../lr-multi-bomberman-${GITHUB_REF_NAME_SLUG}-${arch}.tar.gz" *; popd)
           done
       - name: Create checksum for release assets
-          shell: bash
+        shell: bash
         run: |
           algo="${SHA_ALGORITHM:-256}"
           find assets -type f | while read -r asset; do
