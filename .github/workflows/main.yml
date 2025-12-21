@@ -1,6 +1,8 @@
 name: Build and release
 
 on:
+  push:
+    branches: [ ci ]
   release:
     types: [published]
   workflow_dispatch:
@@ -14,8 +16,8 @@ jobs:
         target:
           - platform: linux/amd64
             arch: x86_64
-#          - platform: linux/arm64
-#            arch: arm64
+          - platform: linux/arm64
+            arch: arm64
 #          - platform: linux/arm/v7
 #            arch: rpi3
 #          - platform: linux/arm/v7
