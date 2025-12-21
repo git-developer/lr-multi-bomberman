@@ -50,9 +50,9 @@ jobs:
             LR_PLATFORM=${{ matrix.target.arch }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: lr_multi_bomberman-${{ matrix.target.arch }}
+          name: ${{ matrix.target.arch }}
           path: |
             build/lr_multi_bomberman_libretro.so
           if-no-files-found: error
@@ -68,11 +68,9 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
-          pattern: lr_multi_bomberman-*
           path: assets
-          merge-multiple: true
       - name: Create checksum for release assets
         shell: bash
         run: |
