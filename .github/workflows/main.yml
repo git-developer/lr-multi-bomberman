@@ -16,15 +16,20 @@ jobs:
         target:
           - platform: linux/amd64
             arch: x86_64
-          - platform: linux/arm64
-            arch: arm64
+            base: "ubuntu:jammy"
+#          - platform: linux/arm64
+#            arch: arm64
+#            base: "ubuntu:jammy"
+          - platform: linux/arm/v7
+            arch: rpi3
+            base: "debian:bullseye-slim"
 #          - platform: linux/arm/v7
 #            arch: rpi3
 #          - platform: linux/arm/v7
 #            arch: rpi2
-        base:
-          - os: ubuntu
-            codename: jammy
+#        base:
+#          - os: ubuntu
+#            codename: jammy
 
     steps:
       - uses: actions/checkout@v5
@@ -46,8 +51,7 @@ jobs:
           platforms: ${{ matrix.target.platform }}
           outputs: build
           build-args: |
-            BASE_OS=${{ matrix.base.os }}
-            BASE_CODENAME=${{ matrix.base.codename }}
+            BASE_IMAGE=${{ matrix.target.base }}
             TARGET_PLATFORM=${{ matrix.target.platform }}
             LR_PLATFORM=${{ matrix.target.arch }}
 
@@ -84,4 +88,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           draft: ${{ !startsWith(github.ref, 'refs/tags/') }}
-          files: assets/*
+          files: assets/**

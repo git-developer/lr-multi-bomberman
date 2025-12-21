@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
-ARG BASE_OS=ubuntu
-ARG BASE_CODENAME=jammy
-FROM $BASE_OS:$BASE_CODENAME AS builder
+ARG BASE_IMAGE=ubuntu:jammy
+FROM $BASE_IMAGE AS builder
 RUN apt-get update && apt-get install -y build-essential git libsdl2*-dev libdrm-dev libgbm-dev
 WORKDIR /build
 COPY . ./
