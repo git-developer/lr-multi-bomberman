@@ -1,0 +1,87 @@
+name: Build and release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target:
+          - platform: linux/amd64
+            arch: x86_64
+#          - platform: linux/arm64
+#            arch: arm64
+#          - platform: linux/arm/v7
+#            arch: rpi3
+#          - platform: linux/arm/v7
+#            arch: rpi2
+        base:
+          - os: ubuntu
+            codename: jammy
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: rlespinasse/github-slug-action@v4
+
+      - name: Setup qemu for docker
+        uses: docker/setup-qemu-action@v3
+        if: matrix.target.platform != 'linux/amd64'
+
+      - name: Setup buildx for docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: ${{ matrix.target.platform }}
+          outputs: build
+          build-args: |
+            BASE_OS=${{ matrix.base.os }}
+            BASE_CODENAME=${{ matrix.base.codename }}
+            TARGET_PLATFORM=${{ matrix.target.platform }}
+            TARGET_ARCH=${{ matrix.target.arch }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lr_multi_bomberman-${{ matrix.target.arch }}
+          path: |
+            build/lr_multi_bomberman_libretro.so
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+
+    needs:
+      - build
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          pattern: lr_multi_bomberman-*
+          path: assets
+          merge-multiple: true
+      - name: Create checksum for release assets
+        shell: bash
+        run: |
+          algo="${SHA_ALGORITHM:-256}"
+          find assets -type f | while read -r asset; do
+            shasum --binary --algorithm "${algo}" "${asset}" >"${asset}.sha${algo}"
+          done
+      - name: Upload artifacts to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          files: assets/*
