@@ -11,23 +11,25 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: linux/amd64
-            build-platform: x86_64
+          - classifier: x86_64
+            platform: linux/amd64
             base-image: ubuntu:jammy
             runner: ubuntu-latest
 
-          - platform: linux/arm64
-            build-platform: arm64
+          - classifier: aarch64
+            platform: linux/arm64
             base-image: ubuntu:jammy
             runner: ubuntu-24.04-arm
 
-          - platform: linux/arm/v7
-            build-platform: rpi3
+          - classifier: armv7l-rpi3
+            platform: linux/arm/v7
+            subvariant: rpi3
             base-image: debian:bullseye-slim
             runner: ubuntu-24.04-arm
 
-          - platform: linux/arm/v7
-            build-platform: rpi2
+          - classifier: armv7l-rpi2
+            platform: linux/arm/v7
+            subvariant: rpi2
             base-image: debian:bullseye-slim
             runner: ubuntu-24.04-arm
 
@@ -54,13 +56,12 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ matrix.base-image }}
             TARGET_PLATFORM=${{ matrix.platform }}
-            BUILD_PLATFORM=${{ matrix.build-platform }}
-            VERSION=${{ env.GITHUB_REF_NAME_SLUG }}
+            TARGET_SUBVARIANT=${{ matrix.subvariant }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: artifacts-${{ matrix.build-platform }}
+          name: artifacts-${{ matrix.classifier }}
           path: build/*
           if-no-files-found: error
 

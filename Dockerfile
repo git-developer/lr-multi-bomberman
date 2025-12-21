@@ -4,16 +4,15 @@ FROM $BASE_IMAGE AS builder
 RUN apt-get update && apt-get install -y build-essential git libsdl2*-dev libdrm-dev libgbm-dev
 WORKDIR /build
 COPY . ./
-ARG BUILD_PLATFORM
+ARG TARGET_SUBVARIANT
 RUN <<EOF
   set -eu
-  platform="${BUILD_PLATFORM:-$(uname -m)}"
-  case "${platform}" in
-    rpi?) sed -i "/#platform =/a platform = ${platform}" Makefile.libretro ;;
+  case "${TARGET_SUBVARIANT-}" in
+    rpi?) sed -i "/#platform =/a platform = ${TARGET_SUBVARIANT}" Makefile.libretro ;;
   esac
   make clean -f Makefile.libretro
   make -f Makefile.libretro
-  tar c -zf "${platform}.tar.gz" *.so
+  tar c -zf "$(uname -m)${TARGET_SUBVARIANT:+-${TARGET_SUBVARIANT}}.tar.gz" *.so
 EOF
 
 FROM scratch
