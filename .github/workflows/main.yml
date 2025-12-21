@@ -22,14 +22,14 @@ jobs:
             arch: arm64
             base: "ubuntu:jammy"
             runner: ubuntu-24.04-arm
-#          - platform: linux/arm/v7
-#            arch: rpi3
-#            base: "debian:bullseye-slim"
-#            runner: ubuntu-latest
-#          - platform: linux/arm/v7
-#            arch: rpi2
-#            base: "debian:bullseye-slim"
-#            runner: ubuntu-latest
+          - platform: linux/arm/v7
+            arch: rpi3
+            base: "debian:bullseye-slim"
+            runner: ubuntu-latest
+          - platform: linux/arm/v7
+            arch: rpi2
+            base: "debian:bullseye-slim"
+            runner: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
