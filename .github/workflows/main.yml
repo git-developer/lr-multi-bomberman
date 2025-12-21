@@ -81,7 +81,7 @@ jobs:
         shell: bash
         run: |
           find assets -mindepth 1 -maxdepth 1 -type d | while read arch; do
-            (cd "${arch}"; tar c --remove-files -zvf "../../lr-multi-bomberman-${arch}.tar.gz" *)
+            (pushd "${arch}"; tar c --remove-files -zvf "../../lr-multi-bomberman-${arch}.tar.gz" *; popd)
           done
       - name: Create checksum for release assets
         shell: bash
