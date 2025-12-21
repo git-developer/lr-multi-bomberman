@@ -60,7 +60,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.build-platform }}
+          name: artifacts-${{ matrix.build-platform }}
           path: build/*
           if-no-files-found: error
 
@@ -74,6 +74,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v7
         with:
+          pattern: artifacts-*
           path: assets
           merge-multiple: true
 
@@ -100,3 +101,4 @@ jobs:
         with:
           draft: ${{ !startsWith(github.ref, 'refs/tags/') }}
           files: assets/*
+          fail_on_unmatched_files: true
