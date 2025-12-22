@@ -15,8 +15,10 @@ RUN <<EOF
   make clean -f Makefile.libretro
   make -f Makefile.libretro
   mkdir images
-  cp -a emulationStationTheme/bomberman/art/system.png resources/image img_splash_screen.png images/
-  tar c -zvf "${TARGET_ID:-$(uname -m)${TARGET_SUBVARIANT:+-${TARGET_SUBVARIANT}}}.tar.gz" *.so images/
+  tar c -zvf "${TARGET_ID:-$(uname -m)${TARGET_SUBVARIANT:+-${TARGET_SUBVARIANT}}}.tar.gz" \
+    *.so \
+    emulationStationTheme/ \
+    -C resources/image img_splash_screen.png
 EOF
 
 FROM scratch
