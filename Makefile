@@ -18,6 +18,7 @@ all: target_
 CC_LINK ?= $(CC)
 CC_AS ?= $(CC)
 LDFLAGS += $(MAIN_LDFLAGS)
+LDFLAGS += -static
 EXTRA_LDFLAGS ?= -Wl,-Map=$@.map
 LDLIBS += $(MAIN_LDLIBS)
 ifdef PCNT
