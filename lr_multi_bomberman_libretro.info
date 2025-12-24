@@ -6,7 +6,7 @@ categories = "Game"
 license = "GPLv2"
 supported_extensions = "desktop"
 permissions = ""
-display_version = "2017-12-27"
+display_version = "Git"
 
 # Hardware Information
 systemname = "Multi Bomberman"
