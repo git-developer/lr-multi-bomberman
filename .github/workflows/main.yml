@@ -58,6 +58,7 @@ jobs:
             TARGET_PLATFORM=${{ matrix.platform }}
             TARGET_SUBVARIANT=${{ matrix.subvariant }}
             TARGET_ID=${{ matrix.classifier }}
+            VERSION=${{ env.GITHUB_REF_NAME }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6

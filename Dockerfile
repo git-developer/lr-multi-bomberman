@@ -7,6 +7,7 @@ COPY . ./
 ARG TARGET_PLATFORM
 ARG TARGET_SUBVARIANT
 ARG TARGET_ID
+ARG VERSION
 RUN <<EOF
   set -eu
   case "${TARGET_SUBVARIANT-}" in
@@ -14,7 +15,7 @@ RUN <<EOF
   esac
   make clean -f Makefile.libretro
   make -f Makefile.libretro
-  mkdir images
+  sed -i "s/^display_version = \".*\"/display_version = \"${VERSION}\"/" *.info
   tar c -zvf "${TARGET_ID:-$(uname -m)${TARGET_SUBVARIANT:+-${TARGET_SUBVARIANT}}}.tar.gz" \
     *.so \
     *.info \
