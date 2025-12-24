@@ -17,6 +17,7 @@ RUN <<EOF
   mkdir images
   tar c -zvf "${TARGET_ID:-$(uname -m)${TARGET_SUBVARIANT:+-${TARGET_SUBVARIANT}}}.tar.gz" \
     *.so \
+    *.info \
     emulationStationTheme/ \
     -C resources/image img_splash_screen.png
 EOF
