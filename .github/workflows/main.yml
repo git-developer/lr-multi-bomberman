@@ -13,20 +13,24 @@ jobs:
         include:
           - classifier: x86_64
             platform: linux/amd64
+            base-image: debian:oldoldstable-slim
             runner: ubuntu-latest
 
           - classifier: aarch64
             platform: linux/arm64
+            base-image: debian:oldoldstable-slim
             runner: ubuntu-24.04-arm
 
           - classifier: armv7l-rpi3
             platform: linux/arm/v7
             subvariant: rpi3
+            base-image: debian:oldoldstable-slim
             runner: ubuntu-24.04-arm
 
           - classifier: armv7l-rpi2
             platform: linux/arm/v7
             subvariant: rpi2
+            base-image: debian:oldoldstable-slim
             runner: ubuntu-24.04-arm
 
     steps:
