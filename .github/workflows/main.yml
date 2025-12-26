@@ -6,71 +6,96 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - classifier: x86_64
-            platform: linux/amd64
-            base-image: debian:oldoldstable-slim
-            runner: ubuntu-latest
-
-          - classifier: aarch64
-            platform: linux/arm64
-            base-image: debian:oldoldstable-slim
-            runner: ubuntu-24.04-arm
-
-          - classifier: armv7l-rpi3
-            platform: linux/arm/v7
-            subvariant: rpi3
-            base-image: debian:oldoldstable-slim
-            runner: ubuntu-24.04-arm
-
-          - classifier: armv7l-rpi2
-            platform: linux/arm/v7
-            subvariant: rpi2
-            base-image: debian:oldoldstable-slim
-            runner: ubuntu-24.04-arm
-
+  build-win:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: rlespinasse/github-slug-action@v4
+      - name: Set up build environment
+        run: |
+          choco install mingw
 
-      - name: Setup qemu for docker
-        uses: docker/setup-qemu-action@v3
-        if: matrix.platform != 'linux/amd64' && matrix.platform != 'linux/arm64'
-
-      - name: Setup buildx for docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: ${{ matrix.platform }}
-          outputs: build
-          build-args: |
-            BASE_IMAGE=${{ matrix.base-image }}
-            TARGET_PLATFORM=${{ matrix.platform }}
-            TARGET_SUBVARIANT=${{ matrix.subvariant }}
-            TARGET_ID=${{ matrix.classifier }}
-            VERSION=${{ env.GITHUB_REF_NAME }}
+      - name: Build DLL
+        run: |
+          rm *.dll
+          make -f Makefile.msys.libretro clean
+          make -f Makefile.msys.libretro
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: artifacts-${{ matrix.classifier }}
-          path: build/*
+          name: artifacts-win64
+          path: ./*.dll
           if-no-files-found: error
+
+#  build:
+#    runs-on: ${{ matrix.runner }}
+#    strategy:
+#      matrix:
+#        include:
+#          - classifier: x86_64
+#            platform: linux/amd64
+#            base-image: debian:oldoldstable-slim
+#            runner: ubuntu-latest
+#
+#          - classifier: aarch64
+#            platform: linux/arm64
+#            base-image: debian:oldoldstable-slim
+#            runner: ubuntu-24.04-arm
+#
+#          - classifier: armv7l-rpi3
+#            platform: linux/arm/v7
+#            subvariant: rpi3
+#            base-image: debian:oldoldstable-slim
+#            runner: ubuntu-24.04-arm
+#
+#          - classifier: armv7l-rpi2
+#            platform: linux/arm/v7
+#            subvariant: rpi2
+#            base-image: debian:oldoldstable-slim
+#            runner: ubuntu-24.04-arm
+#
+#    steps:
+#      - uses: actions/checkout@v5
+#        with:
+#          fetch-depth: 0
+#
+#      - uses: rlespinasse/github-slug-action@v4
+#
+#      - name: Setup qemu for docker
+#        uses: docker/setup-qemu-action@v3
+#        if: matrix.platform != 'linux/amd64' && matrix.platform != 'linux/arm64'
+#
+#      - name: Setup buildx for docker
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+#          platforms: ${{ matrix.platform }}
+#          outputs: build
+#          build-args: |
+#            BASE_IMAGE=${{ matrix.base-image }}
+#            TARGET_PLATFORM=${{ matrix.platform }}
+#            TARGET_SUBVARIANT=${{ matrix.subvariant }}
+#            TARGET_ID=${{ matrix.classifier }}
+#            VERSION=${{ env.GITHUB_REF_NAME }}
+#
+#      - name: Upload artifacts
+#        uses: actions/upload-artifact@v6
+#        with:
+#          name: artifacts-${{ matrix.classifier }}
+#          path: build/*
+#          if-no-files-found: error
 
   release:
     runs-on: ubuntu-latest
     needs:
-      - build
+#      - build
+      - build-win
     permissions:
       contents: write
     steps:
